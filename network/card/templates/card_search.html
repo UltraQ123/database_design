@@ -157,9 +157,11 @@ super() }}
             contentType: "application/json;charset=utf-8",
             success: (ret) => {
                 if (ret.success == true) {
-                    console.log(ret);
                     draw_list(ret.data);
                     draw_page_nav_bar(parseInt(ret.page), parseInt(ret.total_page));
+                }
+                else {
+                    suspend("alert-danger", ret.message);
                 }
             }
         })

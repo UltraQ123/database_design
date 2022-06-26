@@ -90,7 +90,7 @@ main %}
                         }, 1000 * count_down); // 过这么多秒后重新启用
                     }
                     else {
-                        window.alert(ret.message);
+                        suspend("alert-danger", ret.message);
                     }
                 }
             })
@@ -122,11 +122,13 @@ main %}
                 contentType: "application/json;charset=utf-8",
                 success: (ret) => {
                     if (ret.success == true) {
-                        window.alert(ret.message);
-                        window.location.href = ret.url;
+                        suspend("alert-success", ret.message);
+                        sleep(500).then(() => {
+                            window.location.href = ret.url;
+                        });
                     }
                     else {
-                        window.alert(ret.message);
+                        suspend("alert-danger", ret.message);
                     }
                 }
             })

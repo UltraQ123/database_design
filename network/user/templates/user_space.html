@@ -88,6 +88,9 @@
                     passwords.val("");
                     $("#password").click();
                 }
+                else {
+                    suspend("alert-danger", ret.message);
+                }
             }
         })
     }

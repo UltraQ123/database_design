@@ -109,6 +109,9 @@
                     draw_list(ret.data);
                     draw_page_nav_bar(parseInt(ret.page), parseInt(ret.total_page));
                 }
+                else {
+                    suspend("alert-danger", ret.message);
+                }
             }
         })
     }
