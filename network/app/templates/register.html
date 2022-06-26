@@ -1,0 +1,133 @@
+{% extends "base.html" %} {% block title %}
+<title>密码登录</title>
+{% endblock %} {% block css %} {{ super() }} {% endblock %} {% block header %} {{ super() }} {% endblock %} {% block
+main %}
+<!-- main-area -->
+<main>
+    <section class="shop--area shop-right-sidebar pt-90 pb-90">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-6">
+                    <div class="card-wrapper">
+                        <div class="card fat">
+                            <div class="card-body">
+                                <h4 class="card-title">注册</h4>
+                                <form method="POST" class="my-login-validation" novalidate="">
+                                    <div class="form-group">
+                                        <label for="email">邮箱</label>
+                                        <input id="email" type="email" class="form-control" placeholder="请输入邮箱"
+                                            name="email" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="verify">验证码</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <input id="code" type="text" class="form-control" placeholder="请输入验证码"
+                                                    name="verify" required />
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="float-right">
+                                                    <button type="button" class="btn"
+                                                        style="background-color: #fc9135; line-height: 0.8"
+                                                        id="send_verify">发送验证码</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="form-group">
+                                            <label for="username">用户名</label>
+                                            <input id="username" type="text" class="form-control"
+                                                placeholder="请设置8-20位用户名,仅包括英文字母和数字" maxlength="20" name="username" />
+                                            <label for="password">密码</label>
+                                            <input id="password" type="password" class="form-control"
+                                                placeholder="请设置6-20位密码，仅接受数字,字母,下划线并且至少包括数字和字母。" maxlength="20"
+                                                name="password" />
+                                        </div>
+                                    </div>
+                                    <button type="button" id="register" class="btn btn-primary btn-block">注册</button>
+                                    <div class="mt-4 text-center" id="click_return_UC"><a
+                                            href="{{url_for('login')}}">点击</a>使用密码登录</div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="{{url_for('static',filename='js/my-login.js')}}"></script>
+<script type="text/javascript">
+    $(document).ready(() => {
+        $("#send_verify").click(() => {
+            let email = $("#email").val();
+            $.ajax({
+                url: "/api/send_verify",
+                type: "post",
+                data: JSON.stringify({ email: email }),
+                contentType: "application/json;charset=utf-8",
+                success: (ret) => {
+                    if (ret.success == true) {
+                        window.alert(ret.message);
+                        let count_down = 30;
+                        let timer = setInterval(() => {
+                            $("#send_verify").attr("disabled", true);
+                            $("#send_verify").text(`${count_down}s`);
+                            // console.log("" + count_down + "s");
+                            count_down -= 1;
+                        }, 1000);
+                        setTimeout(() => {
+                            $("#send_verify").attr("disabled", false);
+                            clearInterval(timer);
+                            $("#send_verify").text("发送验证码");
+                        }, 1000 * count_down); // 过这么多秒后重新启用
+                    }
+                    else {
+                        window.alert(ret.message);
+                    }
+                }
+            })
+        })
+        $("#register").click(() => {
+            let input = $("input");
+            let data = {};
+            for (let i = 0; i < input.length; i++) {
+                if (input[i].value.length == 0) {
+                    window.alert(`未填写${input[i].name}`);
+                    return;
+                }
+                data[input[i].name] = input[i].value;
+            }
+            if (check_username(data["username"]) == false) {
+                $("input[name='username']").val("");
+                return;
+            }
+            if (check_username(data["password"]) == false) {
+                $("input[name='password']").val("");
+                return;
+            }
+            $.ajax({
+                url: "/api/register",
+                type: "post",
+                data: JSON.stringify(data),
+                contentType: "application/json;charset=utf-8",
+                success: (ret) => {
+                    if (ret.success == true) {
+                        window.alert(ret.message);
+                        window.location.href = ret.url;
+                    }
+                    else {
+                        window.alert(ret.message);
+                    }
+                }
+            })
+        })
+    })
+</script>
+{% endblock %}

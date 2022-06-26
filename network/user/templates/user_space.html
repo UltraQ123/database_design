@@ -1,0 +1,105 @@
+{% extends "base.html" %} {% block title %}
+<title>个人中心</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div>
+        <div>
+            <span id="username">用户名:</span>
+        </div>
+        <div><span id="email">邮箱:</span></div>
+    </div>
+    <div>
+        <label>
+            <a class="btn" name="change_password" data-toggle="modal" data-target="#change_item">
+                修改密码
+            </a>
+        </label>
+        <div class="modal fade" id="change_item" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">修改密码</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <label class="col-form-label">原密码</label>
+                            <input class="form-control" name="old_password" type="password" />
+                        </div>
+                        <div>
+                            <label class="col-form-label">新密码</label>
+                            <input class="form-control" name="password" type="password" />
+                        </div>
+                        <div>
+                            <label class="col-form-label">重复密码</label>
+                            <input class="form-control" name="pre_password" type="password" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="password" type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn" onclick="submit()">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <label>
+            <a class="btn" href="{{url_for('user.my_set')}}">
+                查看我的卡组
+            </a>
+        </label>
+    </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    function submit() {
+        let passwords = $("#change_item").find("input.form-control");
+        let data = {};
+        for (let i = 0; i < passwords.length; i++) {
+            if (check_password(passwords[i].value) == false) {
+                passwords.val("");
+                return;
+            }
+            data[passwords[i].name] = passwords[i].value;
+        }
+        if (data["password"].value != data["pre_password"].value) {
+            window.alert("两次密码不一致");
+            passwords.val("");
+            return;
+        }
+        delete data.pre_password;
+        $.ajax({
+            url: "/api/change_password",
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json;charset=utf-8",
+            success: (ret) => {
+                window.alert(ret.message);
+                if (ret.success == true) {
+                    passwords.val("");
+                    $("#password").click();
+                }
+            }
+        })
+    }
+    $(document).ready(() => {
+        $.ajax({
+            url: "/api/get_current_data",
+            type: "get",
+            success: (ret) => {
+                $("#username").text($("#username").text() + ret.data.name);
+                $("#email").text($("#email").text() + ret.data.email);
+            }
+        })
+    })
+</script>
+{% endblock %}

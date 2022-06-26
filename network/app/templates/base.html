@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    {% block title %}
+    <title></title>
+    {% endblock %}
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!--<link rel="shortcut icon" type="image/x-icon" href="{{url_for('static',filename='img/icon/favicon.png')}}" />
+    -->
+    <!-- CSS here -->
+    {% block css %}
+    <link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/animate.min.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/magnific-popup.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/fontawesome-all.min.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/jquery-ui.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/flaticon.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/aos.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/slick.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/default.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}" />
+    <link rel="stylesheet" href="{{url_for('static', filename='css/responsive.css')}}" />
+    <!--
+        <link rel="stylesheet" href="{{url_for('static', filename='css/dropdown.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/member-main.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/init.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+        -->
+    {% endblock %}
+</head>
+
+<body>
+    <!-- header-area -->
+    {% block header %}
+    <header>
+        <div class="header-search-area">
+            <div class="container custom-container">
+                <div class="row align-items-center">
+                    <div class="col-xl-2 col-lg-3 d-none d-lg-block">
+                        <div class="logo">
+                            <a href="{{url_for('index')}}" title="返回主页"><img
+                                    src="{{url_for('static',filename='img/logo/icon_new_small.png')}}" alt="Logo" /></a>
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-lg-9">
+                        <div class="d-block d-sm-flex align-items-center justify-content-end">
+                            <div class="header-action">
+                                <ul>
+                                    <li class="header-cart-action">
+                                        <div class="header-cart-wrap">
+                                            <a href="{{url_for('user.space')}}" id="bar_icon_user"><i
+                                                    class="flaticon-user"></i></a>
+                                            <ul class="minicart" id="menu"></ul>
+                                        </div>
+                                        <!--<div class="cart-amount">$0.00</div>-->
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    {% endblock %}
+    <!-- header-area-end -->
+
+    <!-- main-area -->
+    {% block main %}
+    <main></main>
+    {% endblock %}
+    <!-- main-area-end -->
+
+    <!-- footer-area -->
+    {% block footer %}
+    <footer>
+
+    </footer>
+    {% endblock %}
+    <!-- footer-area-end -->
+
+    <!-- JS here -->
+    {% block js %}
+    <script src="  {{url_for('static', filename='js/vendor/jquery-3.6.0.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/isotope.pkgd.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/imagesloaded.pkgd.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/jquery.magnific-popup.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/jquery.countdown.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/jquery-ui.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/slick.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/ajax-form.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/wow.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/aos.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/plugins.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/main.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/bootbox.min.js')}}"></script>
+    <script src="  {{url_for('static', filename='js/my-use.js')}}"></script>
+    <!--<script src="  {{url_for('static', filename='js/dropdown.js')}}"></script>-->
+    <script type="text/javascript">
+        $(document).ready(() => {
+            if ("{{current_user}}".indexOf("Anonymous") != -1) { // 未登录 $(bar_icon_post).remove();
+                $(bar_icon_user).attr('href', '{{url_for("login")}}');
+                $(menu).append(`<li>
+        <div class="checkout-link">
+            <a class="black-color" href="{{ url_for("login") }}">登录</a>
+        </div>
+    </li>`);
+            } else {
+                $(menu).append(`<li>
+        <div class="checkout-link">
+            <a href="{{url_for("user.space")}}">个人中心</a>
+            <a class="black-color" href="{{url_for("logout")}}">退出登录</a>
+        </div>
+    </li>`);
+            }
+        });
+    </script>
+    {% endblock %}
+</body>
+
+</html>

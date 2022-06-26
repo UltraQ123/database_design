@@ -1,0 +1,188 @@
+{% extends "base.html" %} {% block title %}
+<title>卡片详情</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+
+    <div class="col">
+        <div class="shop-top-left">
+            <form action="#">
+                <select class="shop-top-left"></select>
+            </form>
+        </div>
+    </div>
+
+    <section class="shop-details-area pt-90 pb-90">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                </div>
+                <div class="col-lg-8">
+
+                </div>
+            </div>
+    </section>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    function draw_card(data) {
+        let show_area = $("main").children(':last-child');
+        let pic = show_area.find("div.col-lg-4");
+        pic.children().remove();
+        pic.append(`<img src="/static/card/${data.id}.jpg" width=200 height=240 />`);
+        let desc = show_area.find("div.col-lg-8");
+        desc.children().remove();
+        let envs = "";
+        if (data.is_ocg == true) {
+            envs += "OCG";
+        }
+        if (data.is_tcg == true) {
+            if (envs.length != 0) envs += "/";
+            envs += "TCG";
+        }
+        let str = `<div class="shop-details-content">
+                        <h4 class="title">${data.name}</h4>
+                        <div class="shop-details-meta">
+                            <ul>
+                                <li>卡片密码:${data.id}</li>
+                                <li>使用环境:${envs}</li>
+                                <li>种类:${data.card_type}</li>
+                            </ul>
+                        </div>
+                    </div>`
+        desc.append(str);
+        let detail = "";
+        if (data.card_type != "怪兽") {
+            let now_env = $("select").val();
+            let usabled = eval(`data.is_${now_env.toLowerCase()}`);
+            detail += `<div class="shop-details-content">
+                        <div class="shop-details-meta">
+                            <ul>
+                                <li>种类:${data.detail.type}</li>
+                                <li>${usabled == true ? "可使用数:" + data.detail.number : now_env + "环境中无法使用"}</li>
+                            </ul>
+                        </div>
+                        <span>${data.detail.effect}</span>
+                    </div>`
+        }
+        else {
+            let now_env = $("select").val();
+            let usabled = eval(`data.is_${now_env.toLowerCase()}`);
+            let tag = "";
+            let de = "等级";
+            let link = "";
+            for (let j = 0; j < data.detail.tag.length; j++) {
+                tag += data.detail.tag[j];
+                if (data.detail.tag[j] == "超量") {
+                    de = "阶级";
+                }
+                else if (data.detail.tag[j] == "连接") {
+                    de = "连接数";
+                    link += `<div>
+                        <input type='checkbox' disabled='disabled' value=64 />
+                        <input type='checkbox' disabled='disabled' value=128 />
+                        <input type='checkbox' disabled='disabled' value=256 />
+                        </div>`;
+                    link += `<div>
+                        <input type='checkbox' disabled='disabled' value=8 />
+                        <input type='checkbox' disabled='disabled' value=16 />
+                        <input type='checkbox' disabled='disabled' value=32 />
+                        </div>`;
+                    link += `<div>
+                        <input type='checkbox' disabled='disabled' value=1 />
+                        <input type='checkbox' disabled='disabled' value=2 />
+                        <input type='checkbox' disabled='disabled' value=4 />
+                        </div>`;
+                }
+                if (j < data.detail.tag.length - 1) tag += "/";
+            }
+            let pem = "";
+            let pem_num = ""
+            if (data.detail.pendulum_number != null) {
+                pem_num += `<li>灵摆刻度:${data.detail.pendulum_number}</li>`
+                pem += `<p>${data.detail.pendulum_effect}</p>`;
+            }
+            detail += `<div class="shop-details-content">
+                        <div class="shop-details-meta">
+                            <ul>
+                                <li>种类:${tag}</li>
+                                <li>${usabled == true ? "可使用数:" + data.detail.number : now_env + "环境中无法使用"}</li>
+                            </ul>
+                        </div>
+                        <div class="shop-details-meta">
+                            <ul>
+                                <li>种族:${data.detail.race}</li>
+                                <li>属性:${data.detail.attrib}</li>
+                                <li>${de}:${data.detail.star_number}</li>
+                                ${pem_num}
+                            </ul>
+                        </div>
+                        <div class="shop-details-meta">
+                            <ul>
+                                <li>攻击力:${data.detail._atk == -1 ? "?" : data.detail._atk}</li>
+                                <li>守备力:${data.detail._def == null ? "-" : (data.detail._def == -1 ? "?" : data.detail._def)}</li>
+                            </ul>
+                        </div>
+                        ${pem}
+                        ${link}
+                        <p>${data.detail.monster_effect}</p>
+                    </div>`
+        }
+        desc.append(detail);
+        let linkmark = $("input[type='checkbox']");
+        for (let i = 0; i < linkmark.length; i++) {
+            if ((parseInt(linkmark[i].value) & data.detail.link_mark) > 0) {
+                linkmark[i].checked = "checked";
+            }
+        }
+    }
+    function get_card_data(data) {
+        $.ajax({
+            url: "/api/get_card_data",
+            type: "get",
+            data: data,
+            success: (ret) => {
+                if (ret.success == true) {
+                    console.log(ret.data);
+                    draw_card(ret.data);
+                }
+                else {
+                    let main = $("main");
+                    main.children().remove();
+                    main.append(`<h1>非常抱歉,此卡不存在</h1>`);
+                }
+            }
+        })
+    }
+    $(document).ready(() => {
+        let url = window.location.href.split("/");
+        let data = { id: parseInt(url[url.length - 2]) };
+        $.ajax({
+            url: "/api/get_envs",
+            type: "get",
+            "success": (ret) => {
+                for (let i = 0; i < ret.length; i++) {
+                    $("select").append(`<option ${ret[i] == "OCG" ? select = 'select' : ""}>${ret[i]}</option>`)
+                }
+            }
+        })
+        $("select").change((e) => {
+            let env = e.target.value;
+            let url = window.location.href.split("/");
+            let data = { id: parseInt(url[url.length - 2]), env: env };
+            get_card_data(data);
+        })
+        get_card_data(data);
+    })
+</script>
+{% endblock %}

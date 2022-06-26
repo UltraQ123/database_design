@@ -1,0 +1,141 @@
+{% extends "base.html" %} {% block title %}
+<title>卡组详情</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div class="shop-products-wrap">
+        <div id="display" class="row justify-content-center"></div>
+        <div id="btn" class="row justify-content-center">
+            <div id="download" class="col-xl-4 col-md-3 col-sm-4"><a class='btn'>点击下载卡组</a></div>
+        </div>
+    </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    function draw_set(data) {
+        $("#display").children().remove();
+        let num = 0;
+        $("#display").append("<div class='col-xl-12'><h2>主卡组</h2></div>")
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].position != num) {
+                num = data[i].position;
+                switch (num) {
+                    case 1: $("#display").append("<div class='col-xl-12'><h2>额外卡组</h2></div>"); break;
+                    case 2: $("#display").append("<div class='col-xl-12'><h2>副卡组</h2><div>"); break;
+                }
+            }
+            let str = `<div class="col-xl-3 col-md-4 col-sm-6">
+                                <div class="sp-product-item">
+                                    <div class="sp-product-thumb">
+                                        <!--<span class="batch">New</span>-->
+                                        <a href="/card/data/${data[i].cardid}">
+                                            <img src="/static/card/${data[i].cardid}.jpg"
+                                            alt="" width=60 height=80 />
+                                            </a>
+                                    </div>
+                                </br>
+                                    <div class="sp--product--content">
+                                        <h6 class="title"><a href="/card/data/${data[i].cardid}">${data[i].name}</a></h6>
+                                        <div class="rating">x${data[i].number}</div>
+                                    </div>
+                                </div>
+                            </div>`;
+            $("#display").append(str);
+        }
+    }
+    $(document).ready(() => {
+        let href_split = window.location.href.split("/");
+        let data = {
+            user: decodeURI(href_split[href_split.length - 3]),
+            name: decodeURI(href_split[href_split.length - 2])
+        };
+        $.ajax({
+            url: "/api/get_set",
+            type: "get",
+            data: data,
+            success: (ret) => {
+                if (ret.success == true) {
+                    //console.log(ret.data);
+                    draw_set(ret.data);
+                }
+                else {
+                    let main = $("main");
+                    main.children().remove();
+                    main.append(`<h1>非常抱歉,此卡组不存在</h1>`);
+                }
+            }
+        })
+        /*
+        $.ajax({
+            url: "/api/get_current_data",
+            type: "get",
+            success: (ret) => {
+                if (ret.success == true) {
+                    let href_split = window.location.href.split("/");
+                    if (ret.data.name == decodeURI(href_split[href_split.length - 3])) {
+                        $("#btn").append("\
+                        <div id='change' class='col-xl-4 col-md-3 col-sm-4'>\
+                            <a class='btn'>点击修改卡组\
+                                </a>\
+                                </div>");
+                    }
+                }
+            }
+        })
+        */
+    })
+    $("#download").click(() => {
+        let content = "";
+        let temp;
+        let href_split = window.location.href.split("/");
+        let data = {
+            user: decodeURI(href_split[href_split.length - 3]),
+            name: decodeURI(href_split[href_split.length - 2])
+        };
+        $.ajax({
+            url: "/api/get_set",
+            type: "get",
+            data: data,
+            async: false,
+            success: (ret) => {
+                if (ret.success == true) {
+                    temp = ret;
+                }
+            }
+        })
+        content += `created by ${data.user}\n`;
+        let num = 0;
+        content += "#main\n"
+        for (let i = 0; i < temp.data.length; i++) {
+            if (temp.data[i].position != num) {
+                num = temp.data[i].position;
+                switch (num) {
+                    case 1: content += "#extra\n"; break;
+                    case 2: content += "!side\n"; break;
+                }
+            }
+            for (let j = 0; j < temp.data[i].number; j++) {
+                content += temp.data[i].cardid + '\n';
+            }
+        }
+        contentType = 'application/octet-stream';
+        let a = document.createElement('a');
+        let blob = new Blob([content], { 'type': contentType });
+        a.href = window.URL.createObjectURL(blob);
+        a.download = `${data.name}.ydk`;
+        a.click();
+        a.remove();
+        delete blob;
+    })
+</script>
+{% endblock %}

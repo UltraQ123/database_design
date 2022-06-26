@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block title %}
+<title>卡包详情</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div class="justify-content-center"></div>
+    <div class="shop-products-wrap">
+        <div id="display" class="row justify-content-center"></div>
+    </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    function cardbag_desc(data) {
+        let desc = $("main").children(":first-child");
+        desc.append(`<div><h3>${data.name}</h3></div>
+        <div>
+            <span>发售时间:${data.time == null ? "未收录" : data.time}</span>
+            <span>共${data.detail.length}张卡</span>
+        </div>`)
+    }
+    function draw_list(data) {
+        let list = $("#card_list");
+        list.children().remove();
+        for (let i = 0; i < data.length; i++) {
+            let str = `<div class="col-xl-3 col-md-4 col-sm-6">
+                                <div class="sp-product-item">
+                                    <div class="sp-product-thumb">
+                                        <!--<span class="batch">New</span>-->
+                                        <a href="/card/data/${data[i].cardid}">
+                                            <img src="/static/card/${data[i].cardid}.jpg"
+                                            alt="" width=60 height=80 />
+                                            </a>
+                                    </div>
+                                </br>
+                                    <div class="sp--product--content">
+                                        <h6 class="title"><a href="/card/data/${data[i].cardid}">${data[i].name}</a></h6>
+                                    </div>
+                                </div>
+                            </div>`;
+            $("#display").append(str);
+        }
+    }
+    $(document).ready(() => {
+        let url = window.location.href.split("/");
+        let data = { id: parseInt(url[url.length - 2]) };
+        $.ajax({
+            url: "/api/get_cardBag_data",
+            type: "get",
+            data: data,
+            success: (ret) => {
+                if (ret.success == true) {
+                    cardbag_desc(ret.data);
+                    draw_list(ret.data.detail);
+                }
+                else {
+                    let main = $("main");
+                    main.children().remove();
+                    main.append(`<h1>非常抱歉,此卡包不存在</h1>`);
+                }
+            }
+        })
+    })
+</script>
+{% endblock %}

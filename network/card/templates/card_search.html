@@ -1,0 +1,267 @@
+{% extends "base.html" %} {% block title %}
+<title>卡片搜索</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div>
+        <button>点击展开搜索选项</button>
+    </div>
+    <div id="search_area">
+        <div id="select_data">
+            <div id="card_type"></div>
+            <div id="detail_select"></div>
+        </div>
+        <div id="input_data">
+            <div id="detail_input"></div>
+        </div>
+        <div>
+            <a class="btn" href="javascript:void(0);">搜索</a>
+        </div>
+    </div>
+    <div class="shop-products-wrap">
+        <div id="display" class="row justify-content-center"></div>
+    </div>
+    <div class="pagination-wrap">
+        <ul id="page_nav_bar"></ul>
+    </div>
+</main>
+<!-- main-area-end -->
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{
+super() }}
+<style>
+    span {
+        display: inline-block;
+    }
+</style>
+<script>
+    function gene_page_nave_bar_text(i) {
+        $("#page_nav_bar").append(`<li id="page_nav_bar_${i}"><a onclick="send_search_with_filter(${i})">${i}</a></li>`);
+    }
+    function draw_page_nav_bar(now_page, total_page) {
+        $("#page_nav_bar").empty();
+        if (now_page > 1) $("#page_nav_bar").append(`<li class="prev"><a onclick="send_search_with_filter(${now_page - 1})">Prev</a></li>`);
+        if (total_page <= 1);
+        else if (total_page <= 7) for (i = 1; i <= total_page; ++i) $("#page_nav_bar").append(`<li id="page_nav_bar_${i}"><a onclick="send_search_with_filter(${i})">${i}</a></li>`);
+        else {
+            if (now_page <= 4) {
+                for (i = 1; i <= 5; ++i) gene_page_nave_bar_text(i);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                gene_page_nave_bar_text(total_page);
+            } else if (now_page >= total_page - 3) {
+                gene_page_nave_bar_text(1);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                for (i = total_page - 4; i <= total_page; ++i) gene_page_nave_bar_text(i);
+            } else {
+                gene_page_nave_bar_text(1);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                for (i = now_page - 1; i <= now_page + 1; ++i) gene_page_nave_bar_text(i);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                gene_page_nave_bar_text(total_page);
+            }
+        }
+        $(`#page_nav_bar_${now_page}`).html(`<a>${now_page}</a>`);
+        $(`#page_nav_bar_${now_page}`).addClass("active");
+        if (now_page < total_page) $("#page_nav_bar").append(`<li class="next"><a onclick="send_search_with_filter(${now_page + 1})">Next</a></li>`);
+    }
+
+    function get_search_data() {
+        let all_input = $(":input");
+        let data = {};
+        for (let i = 0; i < all_input.length; i++) {
+            if (all_input[i].getAttribute("type") != "checkbox" || all_input[i].checked) {
+                if (all_input[i].localName == "select") {
+                    if (all_input[i].value != all_input[i].children[0].value) {
+                        data[all_input[i].name] = all_input[i].value;
+                    }
+                }
+                else if (all_input[i].getAttribute("type") != "checkbox") {
+                    if (all_input[i].value.length > 0) {
+                        data[all_input[i].name] = all_input[i].value;
+                    }
+                }
+                else {
+                    if (!(all_input[i].name in data)) {
+                        data[all_input[i].name] = new Array();
+                    }
+                    data[all_input[i].name].push(all_input[i].value);
+                }
+            }
+        }
+        return data;
+    }
+    function send_search_with_filter(search_page) {
+        let data = get_search_data();
+        data["page"] = search_page;
+        search(data);
+    }
+    function draw_list(data) {
+        console.log(data);
+        let main_list = $("#display");
+        main_list.children().remove();
+        for (let i = 0; i < data.length; i++) {
+            let str = "";
+            let de = "Level";
+            if ("tag" in data[i]) {
+                for (let j = 0; j < data[i].tag.length; j++) {
+                    str += data[i].tag[j];
+                    if (data[i].tag[j] == "超量") {
+                        de = "Rank";
+                    }
+                    else if (data[i].tag[j] == "连接") {
+                        de = "Link";
+                    }
+                    if (j < data[i].tag.length - 1) str += "/";
+                }
+            }
+            let strs = `<div class="col-xl-3 col-md-4 col-sm-6">
+                                <div class="sp-product-item">
+                                    <div class="sp-product-thumb">
+                                        <!--<span class="batch">New</span>-->
+                                        <a href="/card/data/${data[i].id}">
+                                            <img src="/static/card/${data[i].id}.jpg"
+                                            alt="" width=60 height=80 />
+                                            </a>
+                                    </div>
+                                </br>
+                                    <div class="sp--product--content">
+                                        <h6 class="title"><a href="/card/data/${data[i].id}">${data[i].name}</a></h6>
+                                        <div class="title">${data[i].card_type}</div>
+                                        <div>${data[i].card_type == "怪兽" ? str : data[i].type}</div>
+                                        <div class='details'></div>
+                                    </div>
+                                </div>
+                            </div>`;
+            $("#display").append(strs);
+            if (data[i].card_type == "怪兽") {
+                let details = main_list.children(":last-child").find("div.details");
+                details.append(`<span>${de} ${data[i].star_number}</span>`);
+                if (data[i].pendulum_number != null) {
+                    details.append(`<span>&nbsp;刻度←${data[i].pendulum_number}→</span>`);
+                }
+            }
+        }
+    }
+    function search(data) {
+        $.ajax({
+            url: "/api/search",
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json;charset=utf-8",
+            success: (ret) => {
+                if (ret.success == true) {
+                    console.log(ret);
+                    draw_list(ret.data);
+                    draw_page_nav_bar(parseInt(ret.page), parseInt(ret.total_page));
+                }
+            }
+        })
+    }
+    $(document).ready(() => {
+        $.ajax({
+            url: "/api/get_card_type",
+            type: "get",
+            success: (ret) => {
+                $(card_type).append(`<select name='card_type' ></select>`);
+                let select = $(card_type).children(":last-child");
+                select.append("<option selected='selected'>请选择卡片类型</option>")
+                for (let i = 0; i < ret.length; i++) {
+                    select.append(`<option>${ret[i]}</option>`);
+                }
+                select.change((e) => { change_select_data(e.target.value) });
+            }
+        })
+        $("#input_data").append("<div><span>卡名关键字</span><input type='text' name='card_name' /></div>");
+        $("#input_data").append("<div><span>效果关键字</span><input type='text' name='effect' /></div>");
+        $("a.btn[href='javascript:void(0);']").click(() => {
+            let data = get_search_data();
+            data["page"] = 1;
+            search(data);
+            $('#search_area').hide();
+            $('button').text("点击展开搜索选项");
+        });
+        $("#search_area").hide();
+        $('button').click(() => {
+            if ($("#search_area").is(":visible") == true) {
+                $('#search_area').hide();
+                $('button').text("点击展开搜索选项");
+            }
+            else {
+                $('#search_area').show();
+                $('button').text("点击收起搜索选项");
+            }
+        })
+    })
+    function change_select_data(type) {
+        $.ajax({
+            url: "/api/get_detail_select",
+            type: "get",
+            data: { type: type },
+            success: (ret) => {
+                let detail_select = $("#detail_select");
+                let detail_input = $("#detail_input");
+                detail_select.children().remove();
+                detail_input.children().remove();
+                if (ret.success == true) {
+                    for (let i = 0; i < ret.data.length; i++) {
+                        if (ret.data[i].type == "select") {
+                            detail_select.append("<div></div>");
+                            let this_div = detail_select.children(":last-child");
+                            this_div.append(`<span>${ret.data[i].text}</span>`)
+                            this_div.append(`<select name='${ret.data[i].name}'></select>`);
+                            let this_select = this_div.children(":last-child");
+                            this_select.append(`<option>请选择${ret.data[i].text}</option>`)
+                            for (let j = 0; j < ret.data[i].list.length; j++) {
+                                this_select.append(`<option>${ret.data[i].list[j]}</option>`);
+                            }
+                        }
+                        else if (ret.data[i].type == "input") {
+                            detail_input.append("<div></div>");
+                            let this_div = detail_input.children(":last-child");
+                            this_div.append(`<span>${ret.data[i].text}</span>`)
+                            this_div.append(`<input type='text' name='${ret.data[i].name}'/>`);
+                        }
+                        else if (ret.data[i].type == "checkbox") {
+                            detail_select.append("<div></div>");
+                            let this_div = detail_select.children(":last-child");
+                            this_div.append(`<div><span>${ret.data[i].text}</span></div>`)
+                            this_div.append("<span></span>")
+                            let this_span = this_div.children(":last-child");
+                            for (let k = 0; k < ret.data[i].size[1]; k++) {
+                                this_span.append("<div></div>");
+                                let this_d_div = this_span.children(":last-child");
+                                for (let j = 0; j < ret.data[i].size[0]; j++) {
+                                    let num = k * ret.data[i].size[0] + j;
+                                    this_d_div.append(`<input type='checkbox' name='${ret.data[i].name}'\
+                                    ${ret.data[i].disable.indexOf(num) != -1 ? 'disabled="disabled"' : ''}    \
+                                value = '${ret.data[i].values[num]}' /> ${ret.data[i].list[num]}`);
+                                }
+                            }
+                        }
+                        else if (ret.data[i].type == "show") {
+                            let this_div = detail_select.children(":last-child");
+                            this_div.append("<span></span>");
+                            let this_span = this_div.children(":last-child");
+                            for (let k = 0; k < ret.data[i].size[1]; k++) {
+                                this_span.append("<div></div>");
+                                let this_d_div = this_span.children(":last-child");
+                                for (let j = 0; j < ret.data[i].size[0]; j++) {
+                                    let num = k * ret.data[i].size[0] + j;
+                                    this_d_div.append(`<span>${ret.data[i].list[num]}</span>`);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+</script>
+{% endblock %}

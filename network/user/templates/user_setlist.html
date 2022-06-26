@@ -1,0 +1,123 @@
+{% extends "base.html" %} {% block title %}
+<title>个人中心</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>卡组名</th>
+                <th>建立时间</th>
+                <th>最近修改时间</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <div>
+        <form>
+            <input type="file" multiple="multiple" style="display:none" />
+        </form>
+        <a class="btn" name="upload">点击上传卡组</a>
+    </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    function show_set() {
+        let show = $("main").find("tbody");
+        show.children().remove();
+        $.ajax({
+            url: "/api/get_current_set_list",
+            type: "get",
+            success: (ret) => {
+                if (ret.success == true) {
+                    for (let i = 0; i < ret.data.length; i++) {
+                        let str = `<tr>\
+                            <td>${ret.data[i].name}</td>\
+                            <td>${ret.data[i].create_time}</td>\
+                            <td>${ret.data[i].last_alter_time}</td>\
+                            <td>
+                            <a class='btn' href='/cardSet/data/${ret.data[i].user}/${ret.data[i].name}/'>
+                            查看详情</a>\
+                            </td>\
+                            <td><a class='btn' name='delete'>删除卡组</a></td>\
+                            </tr>`
+                        show.append(str);
+                    }
+                    $("a.btn[name='delete']").click((e) => {
+                        let tr = e.target.parentNode.parentNode;
+                        let name = e.target.parentNode.parentNode.children[0].textContent;
+                        $.ajax({
+                            url: "/api/delete_set",
+                            type: "delete",
+                            data: JSON.stringify({ name: name }),
+                            contentType: "application/json;charset=utf-8",
+                            success: (ret) => {
+                                if (ret.success == true) {
+                                    tr.remove();
+                                }
+                                else {
+                                    window.alert(ret.message);
+                                }
+                            }
+                        })
+                    })
+                }
+            }
+        })
+    }
+    $(document).ready(() => {
+        show_set();
+        $("a.btn[name='upload']").click(() => {
+            $("input[type='file']").click();
+        })
+        $("input[type='file']").change(() => {
+            let files = $("input[type='file']")[0].files;
+            let form = new FormData();
+            let errors = "";
+            for (let i = 0; i < files.length; i++) {
+                if (/^.*\.ydk$/.test(files[i].name) == true) {
+                    form.append(files[i].name, files[i]);
+                }
+                else {
+                    errors += `${files[i].name}不是ydk文件\n`
+                }
+            }
+            if (errors.length > 0) {
+                window.alert(errors);
+            }
+            if (form.length == 0) {
+                window.alert("无正确的文件");
+            }
+            else {
+                $.ajax({
+                    url: "/api/post_set",
+                    type: "post",
+                    data: form,
+                    contentType: false,
+                    processData: false,
+                    success: (ret) => {
+                        console.log(ret);
+                        $("form")[0].reset();
+                        if (ret.success == true) {
+                            show_set();
+                        }
+                    },
+                });
+            }
+        })
+    })
+</script>
+{% endblock %}

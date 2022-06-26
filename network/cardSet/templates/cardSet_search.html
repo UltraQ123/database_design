@@ -1,0 +1,139 @@
+{% extends "base.html" %} {% block title %}
+<title>卡组搜索</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div>
+        <button>点击展开搜索选项</button>
+    </div>
+    <div id="search_area">
+        <div id="input_data">
+        </div>
+        <div>
+            <a class="btn" href="javascript:void(0);">搜索</a>
+        </div>
+    </div>
+    <div>
+        <table class="table mb-0">
+            <thead>
+                <th>用户名</th>
+                <th>卡组名</th>
+                <th>创建时间</th>
+                <th></th>
+            </thead>
+            <tbody id="cardset_show"></tbody>
+        </table>
+        <div class="pagination-wrap">
+            <ul id="page_nav_bar"></ul>
+        </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<style>
+    span {
+        display: inline-block;
+    }
+</style>
+<script>
+    function gene_page_nave_bar_text(i) {
+        $("#page_nav_bar").append(`<li id="page_nav_bar_${i}"><a onclick="send_search_with_filter(${i})">${i}</a></li>`);
+    }
+    function draw_page_nav_bar(now_page, total_page) {
+        $("#page_nav_bar").empty();
+        if (now_page > 1) $("#page_nav_bar").append(`<li class="prev"><a onclick="send_search_with_filter(${now_page - 1})">Prev</a></li>`);
+        if (total_page <= 1);
+        else if (total_page <= 7) for (i = 1; i <= total_page; ++i) $("#page_nav_bar").append(`<li id="page_nav_bar_${i}"><a onclick="send_search_with_filter(${i})">${i}</a></li>`);
+        else {
+            if (now_page <= 4) {
+                for (i = 1; i <= 5; ++i) gene_page_nave_bar_text(i);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                gene_page_nave_bar_text(total_page);
+            } else if (now_page >= total_page - 3) {
+                gene_page_nave_bar_text(1);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                for (i = total_page - 4; i <= total_page; ++i) gene_page_nave_bar_text(i);
+            } else {
+                gene_page_nave_bar_text(1);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                for (i = now_page - 1; i <= now_page + 1; ++i) gene_page_nave_bar_text(i);
+                $("#page_nav_bar").append(`<li><a>...</a></li>`);
+                gene_page_nave_bar_text(total_page);
+            }
+        }
+        $(`#page_nav_bar_${now_page}`).html(`<a>${now_page}</a>`);
+        $(`#page_nav_bar_${now_page}`).addClass("active");
+        if (now_page < total_page) $("#page_nav_bar").append(`<li class="next"><a onclick="send_search_with_filter(${now_page + 1})">Next</a></li>`);
+    }
+    function get_search_data() {
+        let input = $("input");
+        let data = {};
+        for (let i = 0; i < input.length; i++) {
+            data[input[i].name] = input[i].value;
+        }
+        return data;
+    }
+    function draw_list(data) {
+        let show = $("#cardset_show");
+        show.children().remove();
+        for (let i = 0; i < data.length; i++) {
+            show.append(`<tr>
+                <td>${data[i].user}</td>
+                <td>${data[i].name}</td>
+                <td>${data[i].create_time}</td>
+                <td><a class='btn' href="/cardSet/data/${data[i].user}/${data[i].name}/" target="_blank">
+                    查看详情</a></td>
+                </tr>`)
+        }
+    }
+    function send_search_with_filter(search_page) {
+        let data = get_search_data();
+        data["page"] = search_page;
+        search(data);
+    }
+    function search(data) {
+        $.ajax({
+            url: "/api/search_cardset",
+            type: "post",
+            data: JSON.stringify(data),
+            contentType: "application/json;charset=utf-8",
+            success: (ret) => {
+                if (ret.success == true) {
+                    draw_list(ret.data);
+                    draw_page_nav_bar(parseInt(ret.page), parseInt(ret.total_page));
+                }
+            }
+        })
+    }
+    $(document).ready(() => {
+        $("#input_data").append("<div><span>卡组名关键字</span><input type='text' name='set_name' /></div>");
+        $("#input_data").append("<div><span>卡名关键字</span><input type='text' name='card_name' /></div>");
+        $("a.btn[href='javascript:void(0);']").click(() => {
+            let data = get_search_data();
+            data["page"] = 1;
+            search(data);
+            $('#search_area').hide();
+            $('button').text("点击展开搜索选项");
+        });
+        $("#search_area").hide();
+        $('button').click(() => {
+            if ($("#search_area").is(":visible") == true) {
+                $('#search_area').hide();
+                $('button').text("点击展开搜索选项");
+            }
+            else {
+                $('#search_area').show();
+                $('button').text("点击收起搜索选项");
+            }
+        })
+    })
+</script>
+{% endblock %}

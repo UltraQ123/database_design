@@ -1,0 +1,113 @@
+{% extends "base.html" %} {% block title %}
+<title>禁限卡表</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div>
+        <span>
+            请选择禁卡表时间和环境
+        </span>
+        <div class="col">
+            <div class="shop-top-left">
+                <form action="#">
+                    <select class="shop-top-left">
+
+                    </select>
+                </form>
+            </div>
+        </div>
+        <div class="shop-products-wrap">
+            <div id="display" class="row justify-content-center"></div>
+        </div>
+    </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    function desc_show(data) {
+        $("#display").children().remove();
+        let num = 0;
+        $("#display").append("<div class='col-xl-12'><h2>禁止卡</h2></div>")
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].number != num) {
+                num = data[i].number;
+                switch (num) {
+                    case 1: $("#display").append("<div class='col-xl-12'><h2>限制卡</h2></div>"); break;
+                    case 2: $("#display").append("<div class='col-xl-12'><h2>准限制卡</h2><div>"); break;
+                }
+            }
+            let str = `<div class="col-xl-3 col-md-4 col-sm-6">
+                                <div class="sp-product-item">
+                                    <div class="sp-product-thumb">
+                                        <!--<span class="batch">New</span>-->
+                                        <a href="/card/data/${data[i].cardid}">
+                                            <img src="/static/card/${data[i].cardid}.jpg"
+                                            alt="" width=60 height=80 />
+                                            </a>
+                                    </div>
+                                </br>
+                                    <div class="sp--product--content">
+                                        <h6 class="title"><a href="/card/data/${data[i].cardid}">${data[i].name}</a></h6>
+                                    </div>
+                                </div>
+                            </div>`;
+            $("#display").append(str);
+        }
+    }
+    $(document).ready(() => {
+        $.ajax({
+            url: "/api/get_forbidden_tables",
+            type: "get",
+            success: (ret) => {
+                if (ret.success == true) {
+                    let selected = false;
+                    for (let i = 0; i < ret.data.length; i++) {
+                        $('select').append(`<option>${ret.data[i].time} ${ret.data[i].env}</option>`);
+                        if (ret.data[i].env == "OCG" && !selected) {
+                            $('select').children(":last-child").attr("selected", "selected");
+                            selected = true;
+                        }
+                    }
+                    $.ajax({
+                        url: "/api/get_forbidden",
+                        type: "get",
+                        cache: false,
+                        success: (f_ret) => {
+                            console.log(f_ret);
+                            if (f_ret.success == true) {
+                                desc_show(f_ret.data);
+                            }
+                        }
+                    });
+                }
+            }
+        })
+    });
+    $('select').change((e) => {
+        let need = e.target.value.split(" ");
+        let data = { time: need[0], env: need[1] };
+        console.log(data);
+        $.ajax({
+            url: "/api/get_forbidden",
+            type: "get",
+            cache: false,
+            data: data,
+            success: (f_ret) => {
+                console.log(f_ret);
+                if (f_ret.success == true) {
+                    desc_show(f_ret.data);
+                }
+            }
+        })
+    })
+</script>
+{% endblock %}

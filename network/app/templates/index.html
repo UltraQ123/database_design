@@ -1,0 +1,76 @@
+{% extends "base.html" %} {% block name %}
+<title>首页</title>
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% endblock %}
+{% block header %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+<!-- main-area -->
+<main>
+    <!-- 404-area -->
+    <div>
+
+    </div>
+    <div id="wrapper">
+        <div id="main">
+            <label>
+                <a class="btn" name="search">卡片搜索</a>
+            </label>
+            <label>
+                <a class="btn" name="search">卡组搜索</a>
+            </label>
+            <label>
+                <a class="btn" name="search">卡包搜索</a>
+            </label>
+            <label>
+                <a class="btn" name="search">禁限卡表</a>
+            </label>
+        </div>
+    </div>
+    <div>
+
+    </div>
+</main>
+<!-- main-area-end -->
+
+{% endblock %} {% block footer %} {{ super() }} {% endblock %} {% block js %} {{ super() }}
+<script>
+    $(document).ready(() => {
+        $.ajax({
+            url: "/api/get_current_data",
+            type: "get",
+            success: (ret) => {
+                if (ret.success == true) {
+                    $("main>div:eq(0)").append(`<span>欢迎您,${ret.data.name}</span>`)
+                }
+                else {
+                    $("main>div:eq(0)").remove();
+                }
+            }
+        })
+        $("a.btn[name='search']:eq(0)").click(
+            () => {
+                window.location.href = "/card/search";
+            }
+        );
+        $("a.btn[name='search']:eq(1)").click(
+            () => {
+                window.location.href = "/cardSet/search";
+            }
+        );
+        $("a.btn[name='search']:eq(2)").click(
+            () => {
+                window.location.href = "/cardBag/search";
+            }
+        );
+        $("a.btn[name='search']:eq(3)").click(
+            () => {
+                window.location.href = "/forbidden";
+            }
+        );
+    });
+</script>
+{% endblock %}
