@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # pic
-*.jpg
+[0-9]*.jpg
