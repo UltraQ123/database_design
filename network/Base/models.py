@@ -11,7 +11,8 @@ class BaseModel(pw.Model):
 class Cards(BaseModel):
     id = pw.IntegerField(null=False, primary_key=True)
     name = pw.CharField(max_length=255,null=False)
-    card_type = pw.CharField(column_name="type", max_length=255,constraints=[pw.Check("type in (\"怪兽\", \"魔法\", \"陷阱\"")])
+    card_type = pw.CharField(column_name="type", max_length=255,constraints=[pw.Check("type in \
+        (\"怪兽\", \"魔法\", \"陷阱\"")])
     is_ocg = pw.BooleanField(column_name='isOcg', default=True)
     is_tcg = pw.BooleanField(column_name='isTcg', default=True)
 
