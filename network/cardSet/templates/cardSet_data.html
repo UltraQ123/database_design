@@ -75,7 +75,7 @@
                 }
             }
         })
-        /*
+
         $.ajax({
             url: "/api/get_current_data",
             type: "get",
@@ -84,15 +84,35 @@
                     let href_split = window.location.href.split("/");
                     if (ret.data.name == decodeURI(href_split[href_split.length - 3])) {
                         $("#btn").append("\
-                        <div id='change' class='col-xl-4 col-md-3 col-sm-4'>\
-                            <a class='btn'>点击修改卡组\
+                        <div id='del' class='col-xl-4 col-md-3 col-sm-4'>\
+                            <a class='btn'>点击删除卡组\
                                 </a>\
                                 </div>");
+                        $("#del").click(() => {
+                            let href_split = window.location.href.split("/");
+                            let data = {
+                                name: decodeURI(href_split[href_split.length - 2])
+                            };
+                            $.ajax({
+                                url: "/api/delete_set",
+                                type: "delete",
+                                data: JSON.stringify(data),
+                                contentType: "application/json;charset=utf-8",
+                                success: (ret) => {
+                                    if (ret.success == true) {
+                                        window.location.href = "/index";
+                                    }
+                                    else {
+                                        window.alert(ret.message);
+                                    }
+                                }
+                            })
+                        })
                     }
                 }
             }
         })
-        */
+
     })
     $("#download").click(() => {
         let content = "";
