@@ -100,7 +100,6 @@
     <script src="  {{url_for('static', filename='js/plugins.js')}}"></script>
     <script src="  {{url_for('static', filename='js/main.js')}}"></script>
     <script src="  {{url_for('static', filename='js/bootbox.min.js')}}"></script>
-    <script src="  {{url_for('static', filename='js/my-use.js')}}"></script>
     <!--<script src="  {{url_for('static', filename='js/dropdown.js')}}"></script>-->
     <script type="text/javascript">
         $(document).ready(() => {
@@ -180,6 +179,45 @@
                 case "alert-info": info_prompt(message != "" ? message : "未查询到数据"); break;
                 case "alert-info2": info_prompt(message != "" ? message : "未查询到数据"); break;
                 default: alert_prompt("未查询到数据");
+            }
+        }
+        function sleep(time) {
+            return new Promise((resolve) => setTimeout(resolve, time));
+        }
+
+        function check_username(username) {
+            if (username.length < 8 || username.length > 20) {
+                let message = "用户名长度不符合要求";
+                suspend("alert-warning", message);
+                return false
+            }
+            let username_pattern = /^[0-9a-zA-Z]+$/;
+            if (!username_pattern.test(username)) {
+                let message = "用户名格式不符合要求";
+                suspend("alert-warning", message);
+                return false
+            }
+            return true;
+        }
+        function check_password(password) {
+            if (password.length < 6 || password.length > 20) {
+                let message = "密码长度不符合要求";
+                suspend("alert-warning", message);
+                return false;
+            }
+            let sub = [/[0-9]/, /[a-zA-Z]/];
+            let password_pattern = /^[0-9a-zA-Z_]+$/
+            if (!password_pattern.test(password)) {
+                let message = "密码格式不符合要求";
+                suspend("alert-warning", message);
+                return false;
+            }
+            for (i in sub) {
+                if (!sub[i].test(password)) {
+                    let message = "密码格式不符合要求";
+                    suspend("alert-warning", message);
+                    return false;
+                }
             }
         }
     </script>

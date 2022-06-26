@@ -72,7 +72,7 @@
             data[passwords[i].name] = passwords[i].value;
         }
         if (data["password"].value != data["pre_password"].value) {
-            window.alert("两次密码不一致");
+            suspend("alert-danger", "两次密码不一致");
             passwords.val("");
             return;
         }
@@ -83,7 +83,7 @@
             data: JSON.stringify(data),
             contentType: "application/json;charset=utf-8",
             success: (ret) => {
-                window.alert(ret.message);
+                suspend("alert-success", ret.message);
                 if (ret.success == true) {
                     passwords.val("");
                     $("#password").click();

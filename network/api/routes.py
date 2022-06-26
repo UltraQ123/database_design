@@ -263,7 +263,7 @@ def send_verify():
         ret = send_email("游戏王卡片系统验证码",[email],f'您的注册验证码为：{verify}。有效期为5分钟。\n此邮件为系统自动发出，请勿回复。')
         if ret["status"] == False:
             print(ret["message"])
-            return make_response(jsonify({"success":False,"message":"验证码发送失败,请检查输入邮箱,或练习管理员邮箱1355211477@qq.com"}))
+            return make_response(jsonify({"success":False,"message":"验证码发送失败,请检查输入邮箱,或联系管理员邮箱1355211477@qq.com"}))
         pre.append({"time":int(time.time()),"email":email,"verify":verify})
         fp.seek(0,0)
         fp.truncate(0)

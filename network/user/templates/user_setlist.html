@@ -96,10 +96,10 @@
                 }
             }
             if (errors.length > 0) {
-                window.alert(errors);
+                suspend("alert-danger", errors);
             }
             if (form.length == 0) {
-                window.alert("无正确的文件");
+                suspend("alert-danger", "无正确的文件");
             }
             else {
                 $.ajax({

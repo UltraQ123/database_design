@@ -75,7 +75,7 @@ main %}
                 contentType: "application/json;charset=utf-8",
                 success: (ret) => {
                     if (ret.success == true) {
-                        window.alert(ret.message);
+                        suspend("alert-success", ret.message);
                         let count_down = 30;
                         let timer = setInterval(() => {
                             $("#send_verify").attr("disabled", true);
@@ -100,13 +100,13 @@ main %}
             let data = {};
             for (var i = 0; i < input.length; i++) {
                 if (input[i].value.length == 0) {
-                    window.alert(`未填写${input[i].name}`);
+                    suspend("alert-warning", ret.message);
                     return;
                 }
                 data[input[i].name] = input[i].value;
             }
             if (data["new_password"] != data["password"]) {
-                window.alert("两次密码不一致");
+                suspend("alert-warning", ret.message);
                 $("input[name*='password']").val("");
                 return;
             }
