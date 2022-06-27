@@ -68,8 +68,7 @@ create table `User`(
 `password` varchar(255) not null,
 `email` varchar(255)not null,
 `isAdmin` bool not null default 0
-)
-;
+);
 create table `CardSet`(
     `user` varchar(255) not null,
     constraint SetUser foreign key(`user`) references `User`(`name`),
