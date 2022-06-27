@@ -16,7 +16,7 @@ def teardown_request(exc):  #exc必须写上
         database.close()
 
 
-@cardSet_blue.route("/search",methods=["GET","POST"])
+@cardSet_blue.route("/search/",methods=["GET","POST"])
 def index():
     return render_template("cardSet_search.html")
 

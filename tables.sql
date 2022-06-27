@@ -74,22 +74,22 @@ create table `CardSet`(
     constraint SetUser foreign key(`user`) references `User`(`name`),
     `name` varchar(255) not null,
     primary key(`user`, `name`),
-    `createTime` date,
-    `LastAlterTime` date
+    `createTime` date not null,
+    `LastAlterTime` date not null
 );
 
 create table `BagContent`(
-	`CardBagId` int,
+	`CardBagId` int not null,
 	constraint BAGID foreign key (`CardBagId`) references `CardBag`(`id`),
-    `Cardid` int,
+    `Cardid` int not null,
     constraint BAGCARD foreign key(`Cardid`) references `Cards`(`id`),
 	primary key(`CardBagId`,`Cardid`)
 );
 create table `SetContent`(
-	`SetUser` varchar(255),
-    `SetName` varchar(255),
+	`SetUser` varchar(255) not null,
+    `SetName` varchar(255) not null,
     constraint USERDATA foreign key(`SetUser`,`SetName`) references `CardSet`(`user`, `name`),
-	`Cardid` int,
+	`Cardid` int not null,
     constraint USERCARD foreign key(`Cardid`) references `Cards`(`id`),
 	`number` int not null,
 	constraint SETNUM check(`number`>0),
@@ -98,10 +98,10 @@ create table `SetContent`(
     primary key(`SetUser`,`SetName`,`Cardid`,`position`)
 );
 create table `ForbiddenCard`(
-	`Cardid` int,
+	`Cardid` int not null,
     constraint FORBIDDEN foreign key(`Cardid`) references `Cards`(`id`),
-    `env` varchar(255),
-    `time` date,
+    `env` varchar(255) not null,
+    `time` date not null,
     primary key(`Cardid`,`time`,`env`),
     `Number` int not null,
     constraint `LIMIT` check (`Number`>=0 and `Number` < 3)

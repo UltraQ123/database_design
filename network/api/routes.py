@@ -3,7 +3,6 @@ import os
 import time
 import json
 import app
-import random
 from api.utils import *
 from api import api_blue
 from Base import database
